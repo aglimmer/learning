@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script>
+        //测试功能，创建一个token到后天，简单指定101
+        function initConnect(){
+            let req = new XMLHttpRequest();
+            let url = "initConnect?token=101";
+            req.open("GET",url,true);
+            let content = document.getElementById("content");
+            req.onload=function () {
+                content.innerHTML +="<li>"+req.response+"</li>";
+            };
+            req.onerror=function(e){content.innerHTML+="<li>"+e+"</li>";};
+            req.send();
+        }
+    </script>
+</head>
+<body>
+<button onclick="initConnect()">测试</button>
+<h2>测试功能，创建一个token值为101到后台，并设置到session中，这个文件是独立的，仅仅用于测试！</h2>
+<div id="content"></div>
+</body>
+</html>
