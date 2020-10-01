@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>clienta发送</title>
+    <script src="https://cdn.bootcss.com/sockjs-client/1.1.4/sockjs.min.js"></script>
+    <script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.js"></script>
+    <script>
+        var stomp = null;
+        var session = window.sessionStorage;
+        //发送请求设置用户建立联系的token
+        function initRequest(username){
+            var url = "users/"+username;
+            var req = new XMLHttpRequest();
+            req.open("POST",url,true);
+            req.onerror=function(e){console.log(e);};
+            req.onload=function(){
+                var token = req.response;
+                console.log(token);
+            }
+            req.send();
+        }
+        //stomp初始化连接
+        function initConnect() {
+
+            var url = 'http://' + window.location.host + '/simple';
+            console.log("url=" + url);
+            //创建SocketJS连接
+            let sock = new SockJS(url);
+            //创建Stomp客户端实例，其中封装了SocketJS，这样就能在WebSocket连接上发送STOMP消息
+            stomp = Stomp.over(sock);
+            var heads = {HEAD_INFO: ["请求头部信息1", "请求头部信息2"]};
+            stomp.connect(heads, function (frame) {
+                console.log("frame=" + frame);
+                callBack();
+            }, function (error) {
+                console.log("error:" + error);
+            });
+        }
+        //在连接建立后调用
+        function callBack(){
+            let showInfo = document.getElementById("showInfo");
+            let inputBox = document.getElementById("inputBox");
+            let message = inputBox.value;
+            console.log("message=" + message);
+            const payload = JSON.stringify({'message': message});
+            //发送消息
+            stomp.send("/app/clientToClient", {}, payload);
+            showInfo.innerHTML += "<li>send 【"+ session.getItem("username")+"】："+ message + "</li>";
+            //清空输入框
+            inputBox.value = "";
+        }
+        //主方法，用于调用其他所有函数处理
+        function sendMessage() {
+            //获取option选中的值
+            var username = document.getElementById("username").value;
+            console.log("username="+username);
+
+            //判断是username否和上一次选中的一样，如果不一样，需要更新能够建立联系的token
+            var curr = session.getItem("username");
+            if(curr==null || curr!==username || stomp==null){
+                session.setItem("username",username);
+                initRequest(username);
+                //首次执行连接，要把 callBack();放在connect中，这可能是因为连接一个异步过程
+                initConnect();
+            }else{
+                //以后每次连接无需频繁调用connect
+                callBack();
+            }
+        }
+    </script>
+</head>
+<body>
+<div>
+ <pre>
+    [clienta.html]==> [clientb.html]
+   </pre>
+    发信息到：
+    <select id="username">
+        <option value="101" selected>101</option>
+        <option value="102">102</option>
+        <option value="103">103</option>
+    </select>
+    <input type="text" id="inputBox" value="测试消息111111">
+    <button onclick="sendMessage()">发送</button>
+</div>
+<div id="showInfo">
+</div>
+</body>
+</html>
