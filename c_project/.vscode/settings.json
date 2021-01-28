@@ -1,0 +1,17 @@
+{
+    "files.associations": {
+        "ostream": "cpp",
+        "iostream": "cpp",
+        "memory": "c",
+        "algorithm": "cpp",
+        "xtree": "cpp",
+        "utility": "cpp",
+        "set": "cpp",
+        "vector": "cpp",
+        "xstring": "cpp",
+        "unordered_set": "cpp",
+        "queue": "cpp",
+        "iterator": "cpp"
+    }
+
+}
